@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	
+	<!-- 导入外部属性文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+	<!-- 数据库连接池  -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driver}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- 配置SessionFactory -->
+	<!-- 实体类 使用xml 使用 org.springframework.orm.hibernate3.LocalSessionFactoryBean -->
+	<!-- 实体类使用 注解 使用 AnnotationSessionFactoryBean-->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<!-- 引用hbm 映射文件 -->
+		<property name="mappingDirectoryLocations">
+			<list>
+		<!-- 引用目录，加载目录下所有 hbm 文件 -->
+				<value>classpath:cn/store/domain</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- SessionFactory 注入 HibernateTemplate  , 将模板注入给DAO-->
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 事务管理 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- 登陆 -->
+	<bean id="loginAction" class="cn.store.web.action.LoginAction" scope="prototype">
+		<property name="loginService" ref="loginService"></property>
+	</bean>
+	
+	<bean id="loginService" class="cn.store.service.LoginService">
+		<property name="loginDao" ref="loginDao"></property>	
+	</bean>
+	
+	<bean id="loginDao" class="cn.store.dao.LoginDao">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 仓库管理 -->
+	<bean id="storeAction" class="cn.store.web.action.StoreAction" scope="prototype">
+		<property name="storeService" ref="storeService"></property>
+	</bean>
+	
+	<bean id="storeService" class="cn.store.service.StoreService">
+		<property name="storeDao" ref="storeDao"></property>
+	</bean>
+	
+	<bean id="storeDao" class="cn.store.dao.StoreDao">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 货物管理 -->
+	<bean id="goodsAction" class="cn.store.web.action.GoodsAction" scope="prototype">
+		<property name="goodsService" ref="goodsService"></property>
+	</bean>
+	<bean id="goodsService" class="cn.store.service.GoodsService">
+		<property name="goodsDao" ref="goodsDao"></property>
+		<property name="historyService" ref="historyService"></property>
+	</bean>
+	
+	<bean id="goodsDao" class="cn.store.dao.GoodsDao">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 历史记录 -->
+	<bean id="historyAction" class="cn.store.web.action.HistoryAction" scope="prototype">
+		<property name="historyService" ref="historyService"></property>
+		<property name="goodsService" ref="goodsService"></property>
+	</bean>
+	<bean id="historyService" class="cn.store.service.HistoryService">
+		<property name="historyDao" ref="historyDao"></property>
+	</bean>
+	
+	<bean id="historyDao" class="cn.store.dao.HistoryDao">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+</beans>

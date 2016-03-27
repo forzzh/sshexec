@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+    <constant name="struts.devMode" value="true" />
+    <constant name="struts.custom.i18n.resources" value="messages"></constant>
+
+    <package name="default" namespace="/" extends="json-default">
+<!--     	<global-results> -->
+<!--     		<result name="error">/error.jsp</result> -->
+<!--     	</global-results> -->
+<!--     	<global-exception-mappings> -->
+<!--     		<exception-mapping result="error" exception="java.lang.Exception"></exception-mapping> -->
+<!--     	</global-exception-mappings> -->
+    
+    	<action name="login" class="cn.store.web.action.LoginAction">
+    		<result type="redirect">/jsps/main.jsp</result>
+    		<result name="input">/login.jsp</result>
+    	</action>
+    	
+    	<action name="store_*" class="storeAction" method="{1}">
+    		<result name="addSUCCESS">/jsps/main.jsp</result>
+    		<result name="listSUCCESS">/jsps/store/store.jsp</result>
+    		<result name="editviewSUCCESS">/jsps/store/edit.jsp</result>
+    		<result name="deleteSUCCESS" type="redirectAction">store_list</result>
+    		<result name="editSUCCESS" type="redirectAction">store_list</result>
+    		
+    		<result name="ajaxlistSUCCESS" type="json">
+    			<!-- 设置返回的根对象,其中所有的get都会返回 -->
+    			<param name="root">action</param>
+    			<param name="includeProperties">
+    				stores\[\d\]\.id,
+    				stores\[\d\]\.name
+    			</param>
+    		</result>
+    	</action>
+    	
+    	<action name="goods_*" class="goodsAction" method="{1}">
+    		<result name="findByNmSUCCESS" type="json">
+    			<param name="root">action</param>
+    			<param name="includeProperties">
+    				model\.id,
+    				model\.name,
+    				model\.unit,
+    				model\.store\.id
+    			</param>
+    		</result>
+    		<result name="saveSUCCESS" type="redirect">jsps/store/remain.jsp</result>
+    		<result name="listSUCCESS">jsps/store/remain.jsp</result>
+    		<result name="findNamesLikeSUCCESS" type="json">
+    			<param name="root">action</param>
+    			<param name="includeProperties">names\[\d+\]</param>
+    		</result>
+    		
+    		<result name="findByNameSUCCESS" type="json">
+    			<param name="root">action</param>
+    			<param name="includeProperties">
+    				model\.id,
+    				model\.nm,
+    				model\.unit,
+    				model\.store\.id,
+    				model\.store\.name
+    			</param>
+    		</result>
+    		
+    		<!-- 出库验证 -->
+    		<result name="outInput">/jsps/out/out.jsp</result>
+    		
+    		<result name="outSUCCESS" type="redirect">jsps/store/remain.jsp</result>
+    	</action>
+    	
+    	<action name="history_*" class="historyAction" method="{1}">
+    		<result name="listSUCCESS">jsps/his/his.jsp</result>
+    	</action>
+    </package>
+
+</struts>

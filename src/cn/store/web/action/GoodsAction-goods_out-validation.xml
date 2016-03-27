@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators PUBLIC
+		"-//Apache Struts//XWork Validator 1.0.3//EN"
+		"http://struts.apache.org/dtds/xwork-validator-1.0.3.dtd">
+<!-- 出库校验，必须有id和数量 -->
+<validators>
+	<field name="id">
+		<field-validator type="requiredstring">
+			<message key="out.id.required"></message>
+		</field-validator>
+	</field>
+	<field name="amount">
+		<field-validator type="double">
+			<param name="min">1</param>
+			<message key="out.amount.range"></message>
+		</field-validator>
+	</field>
+</validators>
